@@ -7,13 +7,11 @@ pygame.init()
 # font = pygame.font.SysFont('arial', 25)
 font = pygame.font.Font('arial.ttf', 25)
 
-
 class Direction(Enum):
     RIGHT = 1
     LEFT = 2
     UP = 3
     DOWN = 4
-
 
 Point = namedtuple('Point', 'x, y')
 
@@ -26,7 +24,6 @@ BLACK = (0, 0, 0)
 
 BLOCK_SIZE = 20
 SPEED = 20
-
 
 class SnakeGame:
 
@@ -139,12 +136,52 @@ class SnakeGame:
 
         self.head = Point(x, y)
 
+def table_driven_agent(percepts):
+    # Define the rules for the agent
+    
+    # Rule 1: If there is an immediate obstacle in the current movement direction, turn right
+    if percepts['immediate_obstacle']:
+        return 'Turn Right'
+    
+    # Rule 2: If food is to the right, turn right
+    if percepts['food_right']:
+        return 'Turn Right'
+    
+    # Rule 3: If food is to the left, turn left
+    if percepts['food_left']:
+        return 'Turn Left'
+    
+    # Rule 4: If food is above, move up
+    if percepts['food_above']:
+        return 'Move Up'
+    
+    # Rule 5: If food is below, move down
+    if percepts['food_below']:
+        return 'Move Down'
+    
+    # Rule 6: If none of the above rules apply, continue straight
+    return 'Continue Straight'
+
+# Example percepts (replace with actual percept values):
+percepts = {
+    'immediate_obstacle': False,
+    'food_right': True,
+    'food_left': False,
+    'food_above': False,
+    'food_below': False
+}
+
+action = table_driven_agent(percepts)
+# Get the action based on the percepts
+print(f"The agent's action is: {action}")
 
 if __name__ == '__main__':
     game = SnakeGame()
 
     # game loop
     while True:
+
+        
         game_over, score = game.play_step()
 
         if game_over == True:
@@ -152,3 +189,5 @@ if __name__ == '__main__':
 
     print('Final Score', score)
     pygame.quit()
+
+
