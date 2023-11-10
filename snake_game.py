@@ -23,7 +23,7 @@ BLUE2 = (0, 100, 255)
 BLACK = (0, 0, 0)
 
 BLOCK_SIZE = 20
-SPEED = 20
+SPEED = 5
 
 class SnakeGame:
 
@@ -173,16 +173,40 @@ percepts = {
 
 action = table_driven_agent(percepts)
 # Get the action based on the percepts
-print(f"The agent's action is: {action}")
+# print(f"The agent's action is: {action}")
 
 if __name__ == '__main__':
     game = SnakeGame()
 
     # game loop
     while True:
+                # Inside the game loop:
+        percepts = {
+            'immediate_obstacle': game._is_collision(),
+            'food_right': game.food.x > game.head.x,
+            'food_left': game.food.x < game.head.x,
+            'food_above': game.food.y < game.head.y,
+            'food_below': game.food.y > game.head.y
+        }
 
-        
+        action = table_driven_agent(percepts)
+
+        # Update the game state based on the action
+        if action == 'Turn Right':
+            game.direction = Direction.RIGHT
+        elif action == 'Turn Left':
+            game.direction = Direction.LEFT
+        elif action == 'Move Up':
+            game.direction = Direction.UP
+        elif action == 'Move Down':
+            game.direction = Direction.DOWN
+
+      
+        # game loop
         game_over, score = game.play_step()
+
+    
+    
 
         if game_over == True:
             break
