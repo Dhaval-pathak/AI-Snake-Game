@@ -2,9 +2,10 @@ import pygame
 import random
 from enum import Enum
 from collections import namedtuple
+import tkinter as tk
+from tkinter import messagebox
 
 pygame.init()
-# font = pygame.font.SysFont('arial', 25)
 font = pygame.font.Font('arial.ttf', 25)
 
 class Direction(Enum):
@@ -16,14 +17,15 @@ class Direction(Enum):
 Point = namedtuple('Point', 'x, y')
 
 # rgb colors
-WHITE = (255, 255, 255)
 RED = (200, 0, 0)
-BLUE1 = (0, 0, 255)
-BLUE2 = (0, 100, 255)
-BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+BROWN = (118, 175, 60)
+YELLOW = (255, 255, 0)
+LIGHT_BLACK = (30, 30, 30)
 
 BLOCK_SIZE = 20
 SPEED = 5
+
 
 class SnakeGame:
 
@@ -32,7 +34,7 @@ class SnakeGame:
         self.h = h
         # init display
         self.display = pygame.display.set_mode((self.w, self.h))
-        pygame.display.set_caption('Snake')
+        pygame.display.set_caption('Snake Game')
         self.clock = pygame.time.Clock()
 
         # init game state
@@ -44,6 +46,7 @@ class SnakeGame:
                       Point(self.head.x-(2*BLOCK_SIZE), self.head.y)]
 
         self.score = 0
+        self.best_score = 0
         self.food = None
         self._place_food()
 
@@ -53,6 +56,16 @@ class SnakeGame:
         self.food = Point(x, y)
         if self.food in self.snake:
             self._place_food()
+
+    def _is_collision(self):
+        # hits boundary
+        if self.head.x > self.w - BLOCK_SIZE or self.head.x < 0 or self.head.y > self.h - BLOCK_SIZE or self.head.y < 0:
+            return True
+        # hits itself
+        if self.head in self.snake[1:]:
+            return True
+
+        return False
 
     def play_step(self):
         # 1. collect user input
@@ -78,6 +91,7 @@ class SnakeGame:
         game_over = False
         if self._is_collision():
             game_over = True
+            self._game_over_dialog()
             return game_over, self.score
 
         # 4. place new food or just move
@@ -87,39 +101,38 @@ class SnakeGame:
         else:
             self.snake.pop()
 
+        # Update best score
+        if self.score > self.best_score:
+            self.best_score = self.score
+
         # 5. update ui and clock
         self._update_ui()
         self.clock.tick(SPEED)
         # 6. return game over and score
         return game_over, self.score
 
-    def _is_collision(self):
-        # hits boundary
-        if self.head.x > self.w - BLOCK_SIZE or self.head.x < 0 or self.head.y > self.h - BLOCK_SIZE or self.head.y < 0:
-            return True
-        # hits itself
-        if self.head in self.snake[1:]:
-            return True
-
-        return False
-
     def _update_ui(self):
-        self.display.fill(BLACK)
+        self.display.fill(LIGHT_BLACK)
 
-        for pt in self.snake:
-            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x, pt.y,
-                                                              BLOCK_SIZE,
-                                                              BLOCK_SIZE))
-            pygame.draw.rect(self.display, BLUE2, pygame.Rect(pt.x+4, pt.y+4,
-                                                              12, 12))
+        for i, pt in enumerate(self.snake):
+            x, y = pt.x + BLOCK_SIZE // 2, pt.y + BLOCK_SIZE // 2
+            outer_oval_rect = pygame.Rect(x, y, BLOCK_SIZE, BLOCK_SIZE)
+            
+            pygame.draw.ellipse(self.display, BROWN, outer_oval_rect)
+            
+            if i == 0:
+                eye_radius = 3
+                pygame.draw.circle(self.display, WHITE, (x + BLOCK_SIZE // 4, y + BLOCK_SIZE // 4), eye_radius)
+                pygame.draw.circle(self.display, WHITE, (x + 3 * BLOCK_SIZE // 4, y + BLOCK_SIZE // 4), eye_radius)
 
-        pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x,
-                                                        self.food.y,
-                                                        BLOCK_SIZE,
-                                                        BLOCK_SIZE))
+        pygame.draw.circle(self.display, RED, (self.food.x + BLOCK_SIZE // 2, self.food.y + BLOCK_SIZE // 2), BLOCK_SIZE // 2)
+        
 
+        font = pygame.font.Font(None, 36)
         text = font.render("Score: " + str(self.score), True, WHITE)
-        self.display.blit(text, [0, 0])
+        best_score_text = font.render("Best Score: " + str(self.best_score), True, WHITE)
+        self.display.blit(best_score_text, [self.w - 180, 10])
+        self.display.blit(text, [10, 10])
         pygame.display.flip()
 
     def _move(self, direction):
@@ -135,6 +148,12 @@ class SnakeGame:
             y -= BLOCK_SIZE
 
         self.head = Point(x, y)
+
+    def _game_over_dialog(self):
+        pygame.display.iconify()  # Minimize the game window before showing the dialog
+        tk.Tk().withdraw()  # Hide the main window
+        messagebox.showinfo("Game Over", f"Your Score: {self.score}\nBest Score: {self.best_score}")
+        pygame.quit()
 
 def table_driven_agent(percepts):
     # Define the rules for the agent
@@ -162,18 +181,6 @@ def table_driven_agent(percepts):
     # Rule 6: If none of the above rules apply, continue straight
     return 'Continue Straight'
 
-# Example percepts (replace with actual percept values):
-percepts = {
-    'immediate_obstacle': False,
-    'food_right': True,
-    'food_left': False,
-    'food_above': False,
-    'food_below': False
-}
-
-action = table_driven_agent(percepts)
-# Get the action based on the percepts
-# print(f"The agent's action is: {action}")
 
 if __name__ == '__main__':
     game = SnakeGame()
@@ -201,17 +208,10 @@ if __name__ == '__main__':
         elif action == 'Move Down':
             game.direction = Direction.DOWN
 
-      
         # game loop
         game_over, score = game.play_step()
 
-    
-    
-
-        if game_over == True:
+        if game_over:
             break
-
-    print('Final Score', score)
-    pygame.quit()
 
 

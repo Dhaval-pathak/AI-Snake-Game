@@ -101,7 +101,6 @@ class Agent:
 
         return final_move
 
-
 def train():
     plot_scores = []
     plot_mean_scores = []
