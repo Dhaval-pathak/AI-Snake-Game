@@ -90,7 +90,7 @@ class SnakeGame:
         game_over = False
         if self._is_collision():
             game_over = True
-            # self._game_over_dialog()
+            self._game_over_dialog()
             return game_over, self.score
 
         # 4. place new food or just move
@@ -125,7 +125,7 @@ class SnakeGame:
                 pygame.draw.circle(self.display, WHITE, (x + BLOCK_SIZE // 4, y + BLOCK_SIZE // 4), eye_radius)
                 pygame.draw.circle(self.display, WHITE, (x + 3 * BLOCK_SIZE // 4, y + BLOCK_SIZE // 4), eye_radius)
 
-        pygame.draw.circle(self.display, RED, (self.food.x + BLOCK_SIZE // 2, self.food.y + BLOCK_SIZE // 2), BLOCK_SIZE // 2)
+        pygame.draw.rect(self.display, RED, (self.food.x + BLOCK_SIZE // 2, self.food.y + BLOCK_SIZE // 2, BLOCK_SIZE // 2, BLOCK_SIZE // 2))
         
 
         font = pygame.font.Font(None, 36)
@@ -150,7 +150,7 @@ class SnakeGame:
         self.head = Point(x, y)
 
     def _game_over_dialog(self):
-        pygame.display.iconify()  
+        # pygame.display.iconify()  
         tk.Tk().withdraw()
         messagebox.showinfo("Game Over", f"Your Score: {self.score}\nBest Score: {self.best_score}")
         pygame.quit()

@@ -126,7 +126,7 @@ class SnakeGameAI:
                 pygame.draw.circle(self.display, WHITE, (x + BLOCK_SIZE // 4, y + BLOCK_SIZE // 4), eye_radius)
                 pygame.draw.circle(self.display, WHITE, (x + 3 * BLOCK_SIZE // 4, y + BLOCK_SIZE // 4), eye_radius)
 
-        pygame.draw.circle(self.display, RED, (self.food.x + BLOCK_SIZE // 2, self.food.y + BLOCK_SIZE // 2), BLOCK_SIZE // 2)
+        pygame.draw.rect(self.display, RED, (self.food.x + BLOCK_SIZE // 2, self.food.y + BLOCK_SIZE // 2, BLOCK_SIZE // 2, BLOCK_SIZE // 2))
         
 
         font = pygame.font.Font(None, 36)

@@ -91,7 +91,8 @@ class SnakeGame:
         game_over = False
         if self._is_collision():
             game_over = True
-            self._game_over_dialog()
+            print(f"Game Over\nYour Score: {self.score}\nBest Score: {self.best_score}")
+            # self._game_over_dialog()
             return game_over, self.score
 
         # 4. place new food or just move
@@ -125,7 +126,7 @@ class SnakeGame:
                 pygame.draw.circle(self.display, WHITE, (x + BLOCK_SIZE // 4, y + BLOCK_SIZE // 4), eye_radius)
                 pygame.draw.circle(self.display, WHITE, (x + 3 * BLOCK_SIZE // 4, y + BLOCK_SIZE // 4), eye_radius)
 
-        pygame.draw.circle(self.display, RED, (self.food.x + BLOCK_SIZE // 2, self.food.y + BLOCK_SIZE // 2), BLOCK_SIZE // 2)
+        pygame.draw.rect(self.display, RED, (self.food.x + BLOCK_SIZE // 2, self.food.y + BLOCK_SIZE // 2, BLOCK_SIZE // 2, BLOCK_SIZE // 2))
         
 
         font = pygame.font.Font(None, 36)
@@ -150,7 +151,7 @@ class SnakeGame:
         self.head = Point(x, y)
 
     def _game_over_dialog(self):
-        pygame.display.iconify()  # Minimize the game window before showing the dialog
+        # pygame.display.iconify()  # Minimize the game window before showing the dialog
         tk.Tk().withdraw()  # Hide the main window
         messagebox.showinfo("Game Over", f"Your Score: {self.score}\nBest Score: {self.best_score}")
         pygame.quit()
@@ -158,9 +159,9 @@ class SnakeGame:
 def table_driven_agent(percepts):
     # Define the rules for the agent
     
-    # Rule 1: If there is an immediate obstacle in the current movement direction, turn right
+    # Rule 1: If there is an immediate obstacle in the current movement direction, turn left
     if percepts['immediate_obstacle']:
-        return 'Turn Right'
+        return 'Turn Left'
     
     # Rule 2: If food is to the right, turn right
     if percepts['food_right']:
